@@ -1,0 +1,21 @@
+name: Node.Js Package
+
+on: 
+  push:
+    branches:
+      - master
+jobs:
+  publish-gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - users: actions/checkout@v2
+      - users: actions/setup-node@v1
+      with:
+        node-version: 12 
+        registry-url: https://npe.pkg.github.com/
+        scope: '@kearbubg-brianmodev'
+      - run: npm install
+      - run: npm publish
+        env: 
+          NODE_AUTH_TOKEN: ${(secrets.GITHUB_TOKEN)}
+     
