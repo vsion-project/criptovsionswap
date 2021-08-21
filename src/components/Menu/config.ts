@@ -41,15 +41,6 @@ const config: (t: ContextApi['t']) => MenuEntry[] = (t) => [
     href: '/prediction',
   },
   {
-    label: t('Lottery'),
-    icon: 'TicketIcon',
-    href: '/lottery',
-    status: {
-      text: t('Win').toLocaleUpperCase(),
-      color: 'success',
-    },
-  },
-  {
     label: t('Collectibles'),
     icon: 'NftIcon',
     href: '/collectibles',
