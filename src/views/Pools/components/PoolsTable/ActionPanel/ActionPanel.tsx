@@ -23,12 +23,14 @@ import { useTranslation } from 'contexts/Localization'
 import Balance from 'components/Balance'
 import { CompoundingPoolTag, ManualPoolTag } from 'components/Tags'
 import { getAddress, getCakeVaultAddress } from 'utils/addressHelpers'
+import { BIG_ZERO } from 'utils/bigNumber'
 import { registerToken } from 'utils/wallet'
 import { getBalanceNumber, getFullDisplayBalance } from 'utils/formatBalance'
-import { getPoolBlockInfo } from 'views/Pools/helpers'
+import { convertSharesToCake, getPoolBlockInfo } from 'views/Pools/helpers'
 import Harvest from './Harvest'
 import Stake from './Stake'
 import Apr from '../Apr'
+import AutoHarvest from './AutoHarvest'
 
 const expandAnimation = keyframes`
   from {
@@ -88,6 +90,7 @@ type MediaBreakpoints = {
   isMd: boolean
   isLg: boolean
   isXl: boolean
+  isXxl: boolean
 }
 
 interface ActionPanelProps {
@@ -119,6 +122,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ account, pool, userDataLoaded
     endBlock,
     stakingLimit,
     contractAddress,
+    userData,
     isAutoVault,
   } = pool
   const { t } = useTranslation()
@@ -136,8 +140,17 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ account, pool, userDataLoaded
 
   const {
     totalCakeInVault,
+    userData: { userShares },
     fees: { performanceFee },
+    pricePerFullShare,
   } = useCakeVault()
+
+  const stakingTokenBalance = userData?.stakingTokenBalance ? new BigNumber(userData.stakingTokenBalance) : BIG_ZERO
+  const stakedBalance = userData?.stakedBalance ? new BigNumber(userData.stakedBalance) : BIG_ZERO
+  const { cakeAsBigNumber } = convertSharesToCake(userShares, pricePerFullShare)
+  const poolStakingTokenBalance = isAutoVault
+    ? cakeAsBigNumber.plus(stakingTokenBalance)
+    : stakedBalance.plus(stakingTokenBalance)
 
   const performanceFeeAsDecimal = performanceFee && performanceFee / 100
   const isManualCakePool = sousId === 0
@@ -202,7 +215,12 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ account, pool, userDataLoaded
   const aprRow = (
     <Flex justifyContent="space-between" alignItems="center" mb="8px">
       <Text>{isAutoVault ? t('APY') : t('APR')}:</Text>
-      <Apr pool={pool} showIcon performanceFee={isAutoVault ? performanceFeeAsDecimal : 0} />
+      <Apr
+        pool={pool}
+        showIcon
+        stakedBalance={poolStakingTokenBalance}
+        performanceFee={isAutoVault ? performanceFeeAsDecimal : 0}
+      />
     </Flex>
   )
 
@@ -277,7 +295,11 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ account, pool, userDataLoaded
             {isAutoVault ? t('Automatic restaking') : `${t('Earn')} CAKE ${t('Stake').toLocaleLowerCase()} CAKE`}
           </Text>
         )}
-        <Harvest {...pool} userDataLoaded={userDataLoaded} />
+        {pool.isAutoVault ? (
+          <AutoHarvest {...pool} userDataLoaded={userDataLoaded} />
+        ) : (
+          <Harvest {...pool} userDataLoaded={userDataLoaded} />
+        )}
         <Stake pool={pool} userDataLoaded={userDataLoaded} />
       </ActionContainer>
     </StyledActionPanel>

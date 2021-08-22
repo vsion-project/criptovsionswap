@@ -73,6 +73,69 @@ const tokens = {
     decimals: 18,
     projectLink: 'https://pancakeswap.finance/',
   },
+  babycake: {
+    symbol: 'BABYCAKE',
+    address: {
+      56: '0xdB8D30b74bf098aF214e862C90E647bbB1fcC58c',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://babycake.app/',
+  },
+  bmon: {
+    symbol: 'BMON',
+    address: {
+      56: '0x08ba0619b1e7A582E0BCe5BBE9843322C954C340',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://binamon.org/',
+  },
+  hero: {
+    symbol: 'HERO',
+    address: {
+      56: '0xD40bEDb44C081D2935eebA6eF5a3c8A31A1bBE13',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://metahero.io/',
+  },
+  wsg: {
+    symbol: 'WSG',
+    address: {
+      56: '0xA58950F05FeA2277d2608748412bf9F802eA4901',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://wsg.gg/',
+  },
+  mcrn: {
+    symbol: 'MCRN',
+    address: {
+      56: '0xacb2d47827C9813AE26De80965845D80935afd0B',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.macaronswap.finance/',
+  },
+  revv: {
+    symbol: 'REVV',
+    address: {
+      56: '0x833f307ac507d47309fd8cdd1f835bef8d702a93',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://revvmotorsport.com/',
+  },
+  skill: {
+    symbol: 'SKILL',
+    address: {
+      56: '0x154A9F9cbd3449AD22FDaE23044319D6eF2a1Fab',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.cryptoblades.io/',
+  },
   if: {
     symbol: 'IF',
     address: {
@@ -1800,6 +1863,51 @@ const tokens = {
     },
     decimals: 18,
     projectLink: 'https://coin98.com/',
+  },
+  pots: {
+    symbol: 'POTS',
+    address: {
+      56: '0x3Fcca8648651E5b974DD6d3e50F61567779772A8',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://moonpot.com/',
+  },
+  gnt: {
+    symbol: 'GNT',
+    address: {
+      56: '0xf750a26eb0acf95556e8529e72ed530f3b60f348',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.greentrusttoken.com/',
+  },
+  rusd: {
+    symbol: 'rUSD',
+    address: {
+      56: '0x07663837218a003e66310a01596af4bf4e44623d',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://appv2.rampdefi.com/#/',
+  },
+  bp: {
+    symbol: 'BP',
+    address: {
+      56: '0xacb8f52dc63bb752a51186d1c55868adbffee9c1',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://www.bunnypark.com/',
+  },
+  sfund: {
+    symbol: 'SFUND',
+    address: {
+      56: '0x477bc8d23c634c154061869478bce96be6045d12',
+      97: '',
+    },
+    decimals: 18,
+    projectLink: 'https://seedify.fund/ ',
   },
 }
 

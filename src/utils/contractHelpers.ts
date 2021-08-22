@@ -23,6 +23,8 @@ import {
   getMulticallAddress,
   getBunnySpecialCakeVaultAddress,
   getBunnySpecialPredictionAddress,
+  getBunnySpecialLotteryAddress,
+  getFarmAuctionAddress,
 } from 'utils/addressHelpers'
 
 // ABI
@@ -51,7 +53,9 @@ import chainlinkOracleAbi from 'config/abi/chainlinkOracle.json'
 import MultiCallAbi from 'config/abi/Multicall.json'
 import bunnySpecialCakeVaultAbi from 'config/abi/bunnySpecialCakeVault.json'
 import bunnySpecialPredictionAbi from 'config/abi/bunnySpecialPrediction.json'
-import { ChainLinkOracleContract, PredictionsContract } from './types'
+import bunnySpecialLotteryAbi from 'config/abi/bunnySpecialLottery.json'
+import farmAuctionAbi from 'config/abi/farmAuction.json'
+import { ChainLinkOracleContract, FarmAuctionContract, PredictionsContract } from './types'
 
 const getContract = (abi: any, address: string, signer?: ethers.Signer | ethers.providers.Provider) => {
   const signerOrProvider = signer ?? simpleRpcProvider
@@ -134,4 +138,10 @@ export const getBunnySpecialCakeVaultContract = (signer?: ethers.Signer | ethers
 }
 export const getBunnySpecialPredictionContract = (signer?: ethers.Signer | ethers.providers.Provider) => {
   return getContract(bunnySpecialPredictionAbi, getBunnySpecialPredictionAddress(), signer)
+}
+export const getBunnySpecialLotteryContract = (signer?: ethers.Signer | ethers.providers.Provider) => {
+  return getContract(bunnySpecialLotteryAbi, getBunnySpecialLotteryAddress(), signer)
+}
+export const getFarmAuctionContract = (signer?: ethers.Signer | ethers.providers.Provider) => {
+  return getContract(farmAuctionAbi, getFarmAuctionAddress(), signer) as FarmAuctionContract
 }

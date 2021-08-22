@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useAppDispatch } from 'state'
-import { useGetCurrentEpoch, useGetEarliestEpoch, useGetPredictionsStatus } from 'state/hooks'
+import { useGetCurrentEpoch, useGetEarliestEpoch, useGetPredictionsStatus } from 'state/predictions/hooks'
 import { fetchClaimableStatuses, fetchLedgerData, fetchMarketData, fetchRounds } from 'state/predictions'
 import { PredictionStatus } from 'state/types'
 import { range } from 'lodash'
@@ -22,11 +22,11 @@ const usePollPredictions = () => {
       clearInterval(timer.current)
     }
 
-    if (status === PredictionStatus.LIVE) {
+    if (status !== PredictionStatus.INITIAL) {
       timer.current = setInterval(async () => {
-        const liveAndCurrent = [currentEpoch, currentEpoch - 1]
+        const liveCurrentAndRecent = [currentEpoch, currentEpoch - 1, currentEpoch - 2]
 
-        dispatch(fetchRounds(liveAndCurrent))
+        dispatch(fetchRounds(liveCurrentAndRecent))
         dispatch(fetchMarketData())
 
         if (account) {

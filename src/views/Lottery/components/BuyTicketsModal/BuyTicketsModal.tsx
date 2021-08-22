@@ -27,6 +27,7 @@ import useTheme from 'hooks/useTheme'
 import useTokenBalance, { FetchStatus } from 'hooks/useTokenBalance'
 import useApproveConfirmTransaction from 'hooks/useApproveConfirmTransaction'
 import { useCake, useLotteryV2Contract } from 'hooks/useContract'
+import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import useToast from 'hooks/useToast'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import ApproveConfirmButtons, { ButtonArrangement } from 'views/Profile/components/ApproveConfirmButtons'
@@ -68,6 +69,7 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ onDismiss }) => {
       userTickets: { tickets: userCurrentTickets },
     },
   } = useLottery()
+  const { callWithGasPrice } = useCallWithGasPrice()
   const [ticketsToBuy, setTicketsToBuy] = useState('')
   const [discountValue, setDiscountValue] = useState('')
   const [totalCost, setTotalCost] = useState('')
@@ -80,7 +82,7 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ onDismiss }) => {
   const cakeContract = useCake()
   const { toastSuccess } = useToast()
   const { balance: userCake, fetchStatus } = useTokenBalance(getCakeAddress())
-  // balance from useTokenBalance causes rerenders in effects as a new BigNumber is instanciated on each render, hence memoising it using the stringified value below.
+  // balance from useTokenBalance causes rerenders in effects as a new BigNumber is instantiated on each render, hence memoising it using the stringified value below.
   const stringifiedUserCake = userCake.toJSON()
   const memoisedUserCake = useMemo(() => new BigNumber(stringifiedUserCake), [stringifiedUserCake])
 
@@ -161,7 +163,7 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ onDismiss }) => {
 
       // If the users' max CAKE balance purchase is less than the contract limit - factor the discount logic into the max number of tickets they can purchase
       if (limitedMaxPurchase.lt(maxNumberTicketsPerBuyOrClaim)) {
-        // Get max tickets purchaseble with the users' balance, as well as using the discount to buy tickets
+        // Get max tickets purchasable with the users' balance, as well as using the discount to buy tickets
         const { overallTicketBuy: maxPlusDiscountTickets } = getMaxTicketBuyWithDiscount(limitedMaxPurchase)
 
         // Knowing how many tickets they can buy when counting the discount - plug that total in, and see how much that total will get discounted
@@ -247,14 +249,14 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ onDismiss }) => {
         }
       },
       onApprove: () => {
-        return cakeContract.approve(lotteryContract.address, ethers.constants.MaxUint256)
+        return callWithGasPrice(cakeContract, 'approve', [lotteryContract.address, ethers.constants.MaxUint256])
       },
       onApproveSuccess: async () => {
         toastSuccess(t('Contract enabled - you can now purchase tickets'))
       },
       onConfirm: () => {
         const ticketsForPurchase = getTicketsForPurchase()
-        return lotteryContract.buyTickets(currentLotteryId, ticketsForPurchase)
+        return callWithGasPrice(lotteryContract, 'buyTickets', [currentLotteryId, ticketsForPurchase])
       },
       onSuccess: async () => {
         onDismiss()
@@ -416,26 +418,26 @@ const BuyTicketsModal: React.FC<BuyTicketsModalProps> = ({ onDismiss }) => {
               onConfirm={handleConfirm}
               buttonArrangement={ButtonArrangement.SEQUENTIAL}
               confirmLabel={t('Buy Instantly')}
+              confirmId="lotteryBuyInstant"
             />
             {isApproved && (
               <Button
-                id={`lottery_buy_ins_${ticketsToBuy}`}
                 variant="secondary"
                 mt="8px"
+                endIcon={
+                  <ArrowForwardIcon
+                    ml="2px"
+                    color={disableBuying || isConfirming ? 'disabled' : 'primary'}
+                    height="24px"
+                    width="24px"
+                  />
+                }
                 disabled={disableBuying || isConfirming}
                 onClick={() => {
                   setBuyingStage(BuyingStage.EDIT)
                 }}
               >
-                <Flex alignItems="center">
-                  {t('View/Edit Numbers')}{' '}
-                  <ArrowForwardIcon
-                    mt="2px"
-                    color={disableBuying || isConfirming ? 'disabled' : 'primary'}
-                    height="24px"
-                    width="24px"
-                  />
-                </Flex>
+                {t('View/Edit Numbers')}
               </Button>
             )}
           </>

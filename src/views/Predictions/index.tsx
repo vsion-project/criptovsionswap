@@ -3,7 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Helmet } from 'react-helmet-async'
 import { useMatchBreakpoints, useModal } from '@pancakeswap/uikit'
 import { useAppDispatch } from 'state'
-import { useGetPredictionsStatus, useIsChartPaneOpen } from 'state/hooks'
+import { useGetPredictionsStatus, useIsChartPaneOpen } from 'state/predictions/hooks'
 import { useInitialBlock } from 'state/block/hooks'
 import { initializePredictions } from 'state/predictions'
 import { PredictionStatus } from 'state/types'
@@ -17,26 +17,21 @@ import SwiperProvider from './context/SwiperProvider'
 import Desktop from './Desktop'
 import Mobile from './Mobile'
 import RiskDisclaimer from './components/RiskDisclaimer'
-import ChartDisclaimer from './components/ChartDisclaimer'
+import ChartDisclaimer, { CHART_LOCAL_STORAGE_KEY } from './components/ChartDisclaimer'
 
 const Predictions = () => {
-  const { isXl } = useMatchBreakpoints()
+  const { isDesktop } = useMatchBreakpoints()
   const [hasAcceptedRisk, setHasAcceptedRisk] = usePersistState(false, {
-    localStorageKey: 'pancake_predictions_accepted_risk',
-  })
-  const [hasAcceptedChart, setHasAcceptedChart] = usePersistState(false, {
-    localStorageKey: 'pancake_predictions_chart',
+    localStorageKey: 'pancake_predictions_accepted_risk-2',
   })
   const { account } = useWeb3React()
   const status = useGetPredictionsStatus()
   const isChartPaneOpen = useIsChartPaneOpen()
   const dispatch = useAppDispatch()
   const initialBlock = useInitialBlock()
-  const isDesktop = isXl
   const handleAcceptRiskSuccess = () => setHasAcceptedRisk(true)
-  const handleAcceptChart = () => setHasAcceptedChart(true)
   const [onPresentRiskDisclaimer] = useModal(<RiskDisclaimer onSuccess={handleAcceptRiskSuccess} />, false)
-  const [onPresentChartDisclaimer] = useModal(<ChartDisclaimer onSuccess={handleAcceptChart} />, false)
+  const [onPresentChartDisclaimer] = useModal(<ChartDisclaimer />, false)
 
   // TODO: memoize modal's handlers
   const onPresentRiskDisclaimerRef = useRef(onPresentRiskDisclaimer)
@@ -51,10 +46,14 @@ const Predictions = () => {
 
   // Chart Disclaimer
   useEffect(() => {
-    if (!hasAcceptedChart && isChartPaneOpen) {
-      onPresentChartDisclaimerRef.current()
+    if (isChartPaneOpen) {
+      const showChartDisclaimer = JSON.parse(localStorage.getItem(CHART_LOCAL_STORAGE_KEY))
+
+      if (showChartDisclaimer !== true) {
+        onPresentChartDisclaimerRef.current()
+      }
     }
-  }, [onPresentChartDisclaimerRef, hasAcceptedChart, isChartPaneOpen])
+  }, [onPresentChartDisclaimerRef, isChartPaneOpen])
 
   useEffect(() => {
     if (initialBlock > 0) {

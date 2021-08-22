@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import { useCountUp } from 'react-countup'
 import styled from 'styled-components'
-import { BnbUsdtPairTokenIcon, Box, Card, PocketWatchIcon, Text } from '@pancakeswap/uikit'
+import { BnbUsdtPairTokenIcon, Box, Flex, PocketWatchIcon, Text } from '@pancakeswap/uikit'
+import { ROUND_BUFFER } from 'state/predictions/config'
 import { formatBigNumberToFixed } from 'utils/formatBalance'
-import { useGetLastOraclePrice } from 'state/hooks'
+import { useGetCurrentRoundLockTimestamp, useGetLastOraclePrice } from 'state/predictions/hooks'
 import { useTranslation } from 'contexts/Localization'
 import { formatRoundTime } from '../helpers'
-import useRoundCountdown from '../hooks/useRoundCountdown'
+import useCountdown from '../hooks/useCountdown'
 
 const Token = styled(Box)`
   margin-top: -24px;
@@ -56,17 +57,18 @@ const Interval = styled(Text)`
   }
 `
 
-const Label = styled(Card)<{ dir: 'left' | 'right' }>`
+const Label = styled(Flex)<{ dir: 'left' | 'right' }>`
+  background-color: ${({ theme }) => theme.card.background};
+  box-shadow: ${({ theme }) => theme.shadows.level1};
   align-items: ${({ dir }) => (dir === 'right' ? 'flex-end' : 'flex-start')};
   border-radius: ${({ dir }) => (dir === 'right' ? '8px 8px 8px 24px' : '8px 8px 24px 8px')};
-  display: flex;
   flex-direction: column;
   overflow: initial;
   padding: ${({ dir }) => (dir === 'right' ? '0 28px 0 8px' : '0 8px 0 24px')};
 
   ${({ theme }) => theme.mediaQueries.lg} {
     align-items: center;
-    border-radius: 16px;
+    border-radius: ${({ theme }) => theme.radii.card};
     flex-direction: row;
     padding: ${({ dir }) => (dir === 'right' ? '8px 40px 8px 8px' : '8px 8px 8px 40px')};
   }
@@ -109,15 +111,16 @@ interface TimerLabelProps {
 }
 
 export const TimerLabel: React.FC<TimerLabelProps> = ({ interval, unit }) => {
-  const seconds = useRoundCountdown()
-  const countdown = formatRoundTime(seconds)
+  const currentRoundLockTimestamp = useGetCurrentRoundLockTimestamp()
+  const { secondsRemaining } = useCountdown(currentRoundLockTimestamp + ROUND_BUFFER)
+  const countdown = formatRoundTime(secondsRemaining)
   const { t } = useTranslation()
 
   return (
     <Box pr="24px" position="relative">
       <Label dir="right">
         <Title bold color="secondary">
-          {seconds === 0 ? t('Closing') : countdown}
+          {secondsRemaining === 0 ? t('Closing') : countdown}
         </Title>
         <Interval fontSize="12px">{`${interval}${t(unit)}`}</Interval>
       </Label>

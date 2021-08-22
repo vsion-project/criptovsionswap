@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   ArrowBackIcon,
+  Card,
   CardBody,
   CardHeader,
   Flex,
@@ -17,30 +18,27 @@ import {
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { useWeb3React } from '@web3-react/core'
-import { useGetMinBetAmount } from 'state/hooks'
+import { useGetMinBetAmount } from 'state/predictions/hooks'
 import { useTranslation } from 'contexts/Localization'
 import { usePredictionsContract } from 'hooks/useContract'
 import { useGetBnbBalance } from 'hooks/useTokenBalance'
 import useToast from 'hooks/useToast'
+import { useCallWithGasPrice } from 'hooks/useCallWithGasPrice'
 import { BetPosition } from 'state/types'
 import { formatBigNumber, formatFixedNumber } from 'utils/formatBalance'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import PositionTag from '../PositionTag'
 import useSwiper from '../../hooks/useSwiper'
 import FlexRow from '../FlexRow'
-import Card from './Card'
 
 interface SetPositionCardProps {
   position: BetPosition
   togglePosition: () => void
+  epoch: number
   onBack: () => void
   onSuccess: (decimalValue: string, hash: string) => Promise<void>
 }
 
-// /!\ TEMPORARY /!\
-// Set default gasPrice (6 gwei) when calling BetBull/BetBear before new contract is released fixing this 'issue'.
-// TODO: Remove on beta-v2 smart contract release.
-const gasPrice = parseUnits('6', 'gwei')
 const dust = parseUnits('0.01', 18)
 const percentShortcuts = [10, 25, 50, 75]
 
@@ -72,7 +70,7 @@ const getValueAsEthersBn = (value: string) => {
   return Number.isNaN(valueAsFloat) ? ethers.BigNumber.from(0) : parseUnits(value)
 }
 
-const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosition, onBack, onSuccess }) => {
+const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosition, epoch, onBack, onSuccess }) => {
   const [value, setValue] = useState('')
   const [isTxPending, setIsTxPending] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
@@ -84,6 +82,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
   const minBetAmount = useGetMinBetAmount()
   const { t } = useTranslation()
   const { toastError } = useToast()
+  const { callWithGasPrice } = useCallWithGasPrice()
   const predictionsContract = usePredictionsContract()
 
   // Convert bnb balance to ethers.BigNumber
@@ -154,7 +153,7 @@ const SetPositionCard: React.FC<SetPositionCardProps> = ({ position, togglePosit
     const betMethod = position === BetPosition.BULL ? 'betBull' : 'betBear'
 
     try {
-      const tx = await predictionsContract[betMethod]({ value: valueAsBn.toString(), gasPrice })
+      const tx = await callWithGasPrice(predictionsContract, betMethod, [epoch], { value: valueAsBn.toString() })
       setIsTxPending(true)
       const receipt = await tx.wait()
       onSuccess(valueAsBn.toString(), receipt.transactionHash as string)

@@ -35,7 +35,7 @@ import Dots from '../../components/Loader/Dots'
 import { useBurnActionHandlers, useDerivedBurnInfo, useBurnState } from '../../state/burn/hooks'
 
 import { Field } from '../../state/burn/actions'
-import { useUserSlippageTolerance } from '../../state/user/hooks'
+import { useGasPrice, useUserSlippageTolerance } from '../../state/user/hooks'
 import Page from '../Page'
 
 const BorderCard = styled.div`
@@ -58,6 +58,7 @@ export default function RemoveLiquidity({
   )
 
   const { t } = useTranslation()
+  const gasPrice = useGasPrice()
 
   // burn state
   const { independentField, typedValue } = useBurnState()
@@ -291,6 +292,7 @@ export default function RemoveLiquidity({
       setAttemptingTxn(true)
       await router[methodName](...args, {
         gasLimit: safeGasEstimate,
+        gasPrice,
       })
         .then((response: TransactionResponse) => {
           setAttemptingTxn(false)
@@ -349,7 +351,9 @@ export default function RemoveLiquidity({
     return (
       <>
         <RowBetween>
-          {t('%assetA%/%assetB% Burned', { assetA: currencyA?.symbol ?? '', assetB: currencyB?.symbol ?? '' })}
+          <Text>
+            {t('%assetA%/%assetB% Burned', { assetA: currencyA?.symbol ?? '', assetB: currencyB?.symbol ?? '' })}
+          </Text>
           <RowFixed>
             <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin />
             <Text>{parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}</Text>

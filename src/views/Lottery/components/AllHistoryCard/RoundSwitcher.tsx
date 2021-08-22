@@ -30,7 +30,7 @@ interface RoundSwitcherProps {
   selectedRoundId: string
   mostRecentRound: number
   handleInputChange: (event: any) => void
-  handleArrowButonPress: (targetRound: number) => void
+  handleArrowButtonPress: (targetRound: number) => void
 }
 
 const RoundSwitcher: React.FC<RoundSwitcherProps> = ({
@@ -38,29 +38,36 @@ const RoundSwitcher: React.FC<RoundSwitcherProps> = ({
   selectedRoundId,
   mostRecentRound,
   handleInputChange,
-  handleArrowButonPress,
+  handleArrowButtonPress,
 }) => {
   const { t } = useTranslation()
   const selectedRoundIdAsInt = parseInt(selectedRoundId, 10)
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.currentTarget.validity.valid) {
+      handleInputChange(e)
+    }
+  }
 
   return (
     <Flex alignItems="center" justifyContent="space-between">
       <Flex alignItems="center">
         <Heading mr="8px">{t('Round')}</Heading>
         <StyledInput
+          pattern="^[0-9]+$"
+          inputMode="numeric"
           disabled={isLoading}
           id="round-id"
           name="round-id"
-          type="number"
           value={selectedRoundId}
           scale="lg"
-          onChange={handleInputChange}
+          onChange={handleOnChange}
         />
       </Flex>
       <Flex alignItems="center">
         <StyledIconButton
           disabled={!selectedRoundIdAsInt || selectedRoundIdAsInt <= 1}
-          onClick={() => handleArrowButonPress(selectedRoundIdAsInt - 1)}
+          onClick={() => handleArrowButtonPress(selectedRoundIdAsInt - 1)}
           variant="text"
           scale="sm"
           mr="4px"
@@ -69,7 +76,7 @@ const RoundSwitcher: React.FC<RoundSwitcherProps> = ({
         </StyledIconButton>
         <StyledIconButton
           disabled={selectedRoundIdAsInt >= mostRecentRound}
-          onClick={() => handleArrowButonPress(selectedRoundIdAsInt + 1)}
+          onClick={() => handleArrowButtonPress(selectedRoundIdAsInt + 1)}
           variant="text"
           scale="sm"
           mr="4px"
@@ -78,7 +85,7 @@ const RoundSwitcher: React.FC<RoundSwitcherProps> = ({
         </StyledIconButton>
         <StyledIconButton
           disabled={selectedRoundIdAsInt >= mostRecentRound}
-          onClick={() => handleArrowButonPress(mostRecentRound)}
+          onClick={() => handleArrowButtonPress(mostRecentRound)}
           variant="text"
           scale="sm"
         >
